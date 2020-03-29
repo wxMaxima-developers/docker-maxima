@@ -29,23 +29,6 @@ RUN cd gnuplot-main && \
     make -s && \
     make install
 
-RUN wget --quiet 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.3/wxWidgets-3.1.3.tar.bz2' && \
-    bzcat wxWidgets-3.1.3.tar.bz2 | tar xf -
-RUN cd wxWidgets-3.1.3 && \
-    mkdir buildgtk && \
-    cd buildgtk && \
-    ../configure --with-gtk=3 && \
-    make -s && \
-    make install && \
-    ldconfig
-
-RUN wget --quiet -O libpng-1.2.59.tar 'https://sourceforge.net/projects/libpng/files/libpng12/1.2.59/libpng-1.2.59.tar.gz/download' && \
-    zcat libpng-1.2.59.tar | tar xf -
-RUN cd libpng-1.2.59 && \
-    ./configure  && \
-    make -s && \
-    make install
-
 ENV maxima_build tags/5.43.0
 
 RUN git clone https://git.code.sf.net/p/maxima/code maxima-code && \
@@ -59,27 +42,6 @@ RUN cd maxima-code && \
     make -s && \
     make install
 
-# Debian-oldstable provides too old an cmake3 version for building wxMaxima.
-# At least the debian-oldstable that was active in Jan 2019 did.
-RUN wget --quiet 'https://github.com/Kitware/CMake/releases/download/v3.13.3/cmake-3.13.3.tar.gz' && \
-    zcat cmake-3.13.3.tar.gz | tar xf - && \
-    cd cmake-3.13.3 && \
-    ./bootstrap && \
-    make -s && \
-    make install
-
-ENV wxmaxima_build Version-20.03.1
-
-RUN git clone https://github.com/wxMaxima-developers/wxmaxima.git && \
-    cd wxmaxima && \
-    git checkout ${wxmaxima_build}
-
-RUN cd wxmaxima && \
-    mkdir -p build && \
-    cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX:PATH=/wxmaxima-inst  -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" -DCMAKE_LD_FLAGS="-static-libgcc -static-libstdc++" .. && \
-    cmake -- build . && \
-    cmake --build . -- install
 
 COPY appimagetool-$ARCH.AppImage /
 RUN chmod +x appimagetool-$ARCH.AppImage
@@ -96,23 +58,17 @@ RUN ln -s ../../gnuplot-inst/bin/gnuplot usr/bin/gnuplot
 RUN (cd .. && tar cf - sbcl) | tar xf -
 RUN ln -s ../../sbcl/run-sbcl.sh usr/bin/sbcl
 
-RUN mkdir -p usr/lib
-RUN cp -a /usr/local/lib/libwx* /usr/local/lib/libpng* usr/lib
-
 RUN mkdir maxima-inst && \
     (cd ../maxima-code/dist && tar cf - *) | (cd maxima-inst && tar xf -)
 RUN ln -s share/info maxima-inst/info
 RUN ln -s ../../maxima-inst/bin/maxima usr/bin/maxima
 
-RUN (cd .. && tar cf - wxmaxima-inst) | tar xf -
-RUN ln -s ../../wxmaxima-inst/bin/wxmaxima usr/bin/wxmaxima
-
 RUN mkdir -p usr/share/metainfo
-COPY wxmaxima.appdata.xml usr/share/metainfo/
+COPY maxima.appdata.xml usr/share/metainfo/
 
 COPY AppRun .
 RUN chmod +x AppRun
-COPY wxmaxima.desktop .
+COPY maxima.desktop .
 COPY maxima.png .
 
 WORKDIR /

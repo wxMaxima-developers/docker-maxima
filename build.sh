@@ -1,4 +1,4 @@
 #!/bin/sh
-docker build -t wxmaxima .
-docker run wxmaxima cat wxmaxima-x86_64.AppImage > wxmaxima-x86_64.AppImage
-chmod +x wxmaxima-x86_64.AppImage
+docker build -t maxima .
+docker run maxima cat maxima-x86_64.AppImage > maxima-x86_64.AppImage
+chmod +x maxima-x86_64.AppImage

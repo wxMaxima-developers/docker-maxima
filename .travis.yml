@@ -18,7 +18,7 @@ git:
   depth: 15
 script:
 - "./build.sh"
-- chmod +x wxmaxima-x86_64.AppImage
+- chmod +x maxima-x86_64.AppImage
 deploy:
   provider: releases
   prerelease: false
