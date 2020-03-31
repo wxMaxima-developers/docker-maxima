@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=wxmaxima
+Name=maxima
 Exec=foo2
-Comment=wxMaxima is a document based interface for the computer algebra system Maxima
+Comment=Maxima is a versatile computer algebra system
 Icon=maxima
 Categories=Development;
 Terminal=true
