@@ -1,0 +1,56 @@
+name: compile
+on: [push]
+
+jobs:
+  compile:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout_git
+      uses: actions/checkout@v2
+      with:
+        # We must fetch at least the immediate parents so that if this is
+        # a pull request then we can checkout the head.
+        fetch-depth: 15
+    - name: install_packages
+      run: |
+           sudo apt-get update
+           sudo apt-get install runc
+           sudo apt-get install containerd
+           sudo apt-get install docker.io
+           sudo systemctl unmask docker
+           sudo systemctl start docker
+           sudo systemctl status docker
+    - name: start_docker
+      run: |
+           sudo usermod -aG docker $USER
+           sudo gpasswd -a $USER docker
+           id -nG
+    - name: build
+      run: |
+           "./build.sh"
+           chmod a+x maxima-x86_64.AppImage
+    - name: create_release
+      if: startsWith(github.ref, 'refs/tags/')
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Automatic compilation on a new release
+        draft: false
+        prerelease: false
+    - name: upload_appimage
+      if: startsWith(github.ref, 'refs/tags/')
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./wxmaxima-x86_64.AppImage
+        asset_name: wxmaxima-x86_64.AppImage
+        asset_content_type: application/x-executable
