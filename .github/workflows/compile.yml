@@ -3,6 +3,8 @@ on: [push]
 
 permissions:
   contents: read
+  deployments: write
+  statuses: write
 
 jobs:
   compile:
