@@ -29,7 +29,7 @@ RUN cd gnuplot-main && \
     make -s && \
     make install
 
-ENV maxima_build tags/5.44.0
+ENV maxima_build tags/5.46.0
 
 RUN git clone https://git.code.sf.net/p/maxima/code maxima-code && \
     cd maxima-code && \
